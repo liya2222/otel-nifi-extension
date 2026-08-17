@@ -46,6 +46,16 @@ java.arg.27=-Dotel.javaagent.debug=true
 | `otel.instrumentation.nifi.external-propagation-processors`      | List | `GetWMQ`                  | A list of processors for which the external active context is used when a flow file is created / read without context                                                                                                                                          |
 | `otel.instrumentation.nifi.use-links-processors`                 | List | []                        | A list of processors for which when a FlowFile is created/cloned from another flow file, the child span will be set as a link and not a direct child. Useful for split use cases                                                                               |
 | `otel.instrumentation.nifi.external-propagation-thread-prefixes` | List | `ListenHTTP,Consume AMPQ` | A list of thread names for which the external active context is used when a flow file is created / read without context. Useful for input processors that get messages on a different thread for which the `external-propagation-processors` flag doesn't work |
+| `otel.instrumentation.nifi.blacklist-processors-by-name`         | List | []                        | A list of processor **names** (the display name shown on the canvas) for which the agent will not create spans. Matched by exact equality. Useful when specific named processors "junk" your traces                                                             |
+| `otel.instrumentation.nifi.blacklist-processors-by-type`         | List | []                        | A list of processor **types** for which the agent will not create spans. The type is NiFi's component type: the simple processor class name — no package, no separate version — exactly as it appears in the span's `nifi.component.type` attribute (and as the span-name prefix). Examples: `UpdateAttribute`, `PublishKafka_2_6`. Matched by exact equality; look at any existing span to copy the precise value |
+
+## Tags Options
+You can also stop tracing a single processor at runtime by adding the `NoOTEL` tag **anywhere** in that
+processor's **name** on the canvas (a substring match — the `[...]` below is only a readability convention).
+
+| Tag      | Effect                                                       | Example name              |
+|----------|-------------------------------------------------------------|---------------------------|
+| `NoOTEL` | Do not create spans for this processor (per-processor opt-out) | `UpdateAttribute[NoOTEL]` |
 
 ## Embed extensions in the OpenTelemetry Agent
 
